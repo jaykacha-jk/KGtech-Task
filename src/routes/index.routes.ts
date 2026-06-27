@@ -5,13 +5,13 @@ import {
   getHealth,
   getJobById,
   getStats,
-  login,
+  // login,
 } from '../controllers/job.controller';
 import { validate } from '../validators/validate.middleware';
 import {
   createJobBodySchema,
   jobIdParamSchema,
-  loginBodySchema,
+  // loginBodySchema,
   uploadUrlBodySchema,
 } from '../validators/job.validator';
 import {
@@ -23,7 +23,7 @@ const router = Router();
 
 router.get('/health', getHealth);
 
-router.post('/auth/login', validate({ body: loginBodySchema }), login);
+// router.post('/auth/login', validate({ body: loginBodySchema }), login);
 
 router.post(
   '/jobs',
