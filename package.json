@@ -12,9 +12,9 @@
     "lint": "eslint src tests --ext .ts",
     "lint:fix": "eslint src tests --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
-    "test": "jest --runInBand --forceExit",
+    "test": "jest --runInBand --forceExit --ci",
     "test:watch": "jest --watch --runInBand",
-    "test:coverage": "jest --coverage --runInBand --forceExit"
+    "test:coverage": "jest --coverage --runInBand --forceExit --ci"
   },
   "keywords": [
     "bullmq",
@@ -25,7 +25,7 @@
   "author": "",
   "license": "MIT",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.19.0"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1075.0",

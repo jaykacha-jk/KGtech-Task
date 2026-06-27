@@ -3,12 +3,13 @@ import { env } from './env';
 
 export const logger = pino({
   level: env.LOG_LEVEL,
-  ...(env.NODE_ENV === 'development' && {
-    transport: {
-      target: 'pino/file',
-      options: { destination: 1 },
-    },
-  }),
+  ...(env.NODE_ENV === 'development' &&
+    env.LOG_LEVEL !== 'silent' && {
+      transport: {
+        target: 'pino/file',
+        options: { destination: 1 },
+      },
+    }),
   redact: {
     paths: ['req.headers.authorization', 'password', 'token', 'AWS_SECRET_ACCESS_KEY'],
     censor: '[REDACTED]',

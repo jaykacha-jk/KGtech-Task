@@ -34,8 +34,7 @@ describe('API Integration', () => {
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
-    process.env.MONGODB_URI = mongoServer.getUri();
-    await connectMongoDB();
+    await connectMongoDB(mongoServer.getUri());
   });
 
   afterAll(async () => {

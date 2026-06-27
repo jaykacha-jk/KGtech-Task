@@ -6,7 +6,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
   REDIS_HOST: z.string().min(1).default('127.0.0.1'),
-  REDIS_PORT: z.coerce.number().int().positive().default(6379),
+  REDIS_PORT: z.coerce.number().int().positive().default(6380),
   REDIS_PASSWORD: z.string().optional(),
   REDIS_DB: z.coerce.number().int().min(0).default(0),
   BULLMQ_PREFIX: z.string().default('bull'),
@@ -35,7 +35,7 @@ const envSchema = z.object({
   AWS_S3_BUCKET: z.string().optional(),
   AWS_S3_UPLOAD_PREFIX: z.string().default('uploads'),
   AWS_S3_PRESIGNED_URL_EXPIRES_IN: z.coerce.number().int().positive().default(3600),
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -2,10 +2,10 @@ import mongoose from 'mongoose';
 import { env } from './env';
 import { logger } from './logger';
 
-export const connectMongoDB = async (): Promise<void> => {
+export const connectMongoDB = async (uri: string = env.MONGODB_URI): Promise<void> => {
   mongoose.set('strictQuery', true);
 
-  await mongoose.connect(env.MONGODB_URI);
+  await mongoose.connect(uri);
 
   logger.info('MongoDB connected successfully');
 };

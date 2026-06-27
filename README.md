@@ -23,7 +23,7 @@ A production-ready **File Processing Service** built for the KGtech backend tech
 
 | Layer | Technology |
 |-------|------------|
-| Runtime | Node.js 20+ |
+| Runtime | Node.js 20.19.0+ |
 | Language | TypeScript |
 | API | Express.js |
 | Database | MongoDB + Mongoose |
@@ -79,7 +79,7 @@ src/
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 20.19.0+
 - MongoDB 6+
 - Redis 6.2+ (BullMQ recommended minimum; 5.0+ works with warnings)
 
@@ -89,8 +89,14 @@ src/
 git clone <repository-url>
 cd KGtech_task
 npm install
-cp .env.example .env
+cp .env.example .env   # Linux/macOS/Git Bash
 # Edit .env with your configuration
+```
+
+Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
 ```
 
 ## Environment Variables
@@ -102,7 +108,9 @@ See [`.env.example`](./.env.example) for all variables. Key settings:
 | `PORT` | API server port | `3000` |
 | `MONGODB_URI` | MongoDB connection string | required |
 | `REDIS_HOST` | Redis host | `127.0.0.1` |
-| `REDIS_PORT` | Redis port | `6380` (Docker Compose / Windows portable; `6379` on native Linux/macOS) |
+| `REDIS_PORT` | Redis port | `6380` (use `6379` for native Linux/macOS Redis) |
+| `RATE_LIMIT_WINDOW_MS` | Global rate-limit window | `900000` (15 min) |
+| `RATE_LIMIT_MAX` | Max requests per IP per window (global) | `100` |
 | `AUTH_ENABLED` | Require JWT on protected routes | `false` |
 | `AUTH_USERNAME` / `AUTH_PASSWORD` | Login credentials when auth is enabled | `admin` / `admin123` |
 | `JWT_SECRET` | JWT signing secret (min 16 chars) | dev default in schema |
@@ -184,13 +192,15 @@ All endpoints return a consistent JSON envelope:
 | Method | Endpoint | Auth when `AUTH_ENABLED=true` | Description |
 |--------|----------|--------------------------------|-------------|
 | `GET` | `/health` | No | Health check (API, Redis, MongoDB) |
-| `POST` | `/auth/login` | No | Get JWT token |
+| ~~`POST`~~ | ~~`/auth/login`~~ | — | ~~Get JWT token~~ *(route disabled)* |
 | `POST` | `/jobs` | Yes | Create a processing job |
 | `GET` | `/jobs/:id` | Yes | Get job status |
 | `GET` | `/stats` | Yes | Queue statistics |
 | `POST` | `/upload-url` | Yes | Generate S3 pre-signed upload URL |
 
 ### Create Job
+
+`POST /jobs` is limited to **30 requests per minute per IP** (in addition to the global rate limit). Exceeding either limit returns **429 Too Many Requests**.
 
 ```bash
 curl -X POST http://localhost:3000/jobs \
@@ -235,9 +245,12 @@ Response `data`:
 
 ### Authentication
 
-Set `AUTH_ENABLED=true` in `.env`, then obtain a token and pass it on protected routes:
+JWT auth middleware is implemented but **`POST /auth/login` is currently disabled** in `src/routes/index.routes.ts`. To re-enable, uncomment the login route and imports.
+
+When enabled, set `AUTH_ENABLED=true` in `.env`, obtain a token, and pass it on protected routes:
 
 ```bash
+# Uncomment /auth/login in routes first, then:
 curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "admin123"}'
@@ -267,12 +280,16 @@ Response `data`:
 
 ## Testing
 
+Run from the project root after `npm install`:
+
 ```bash
 npm test
 npm run test:coverage
 ```
 
-Tests cover validators, utilities, repository layer, job handler logic, and API integration. Integration tests use in-memory MongoDB and mock Redis/BullMQ, so external services are not required to run the test suite.
+Tests cover validators, utilities, repository layer, job handler logic, and API integration. Integration tests use in-memory MongoDB and mock Redis/BullMQ, so **MongoDB and Redis do not need to be running**.
+
+On the first run, `mongodb-memory-server` may download a MongoDB binary (requires internet). Use **Node.js 20.19.0+** to avoid compatibility warnings from the test MongoDB binary.
 
 ## Scripts
 
